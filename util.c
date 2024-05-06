@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <sys/mman.h>
 
 #include <errno.h>
@@ -7,8 +8,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "util.h"
 
+NORETURN
 void
 die(const char *format, ...)
 {
@@ -23,7 +26,7 @@ die(const char *format, ...)
 int
 os_create_anonymous_file(off_t size)
 {
-	static const char template[] = "/herbew-shared-XXXXXX";
+	static const char template[] = "/mayherb-shared-XXXXXX";
 	const char *path;
 	char *name;
 	int fd;
@@ -36,8 +39,9 @@ os_create_anonymous_file(off_t size)
 	}
 
 	name = malloc(strlen(path) + sizeof(template));
-	if (!name)
+	if (!name) {
 		return -1;
+	}
 
 	strcpy(name, path);
 	strcat(name, template);
@@ -45,8 +49,9 @@ os_create_anonymous_file(off_t size)
 	fd = create_tmpfile_cloexec(name);
 	free(name);
 
-	if (fd < 0)
+	if (fd < 0) {
 		return -1;
+	}
 
 	ret = posix_fallocate(fd, 0, size);
 	if (ret != 0) {
@@ -65,8 +70,9 @@ create_tmpfile_cloexec(char *tmpname)
 #ifdef HAVE_MKOSTEMP
 	fd = mkostemp(tmpname, O_CLOEXEC);
 
-	if (fd >= 0)
+	if (fd >= 0) {
 		unlink(tmpname);
+	}
 #else
 	fd = mkstemp(tmpname);
 
@@ -81,22 +87,17 @@ create_tmpfile_cloexec(char *tmpname)
 int
 set_cloexec_or_close(int fd)
 {
-	long flags;
+	int flags;
 
-	if (fd == -1)
+	if (fd == -1) {
 		return -1;
-	
+	}
+
 	flags = fcntl(fd, F_GETFD);
 
-	if (flags == -1)
-		goto err;
-
-	if (fcntl(fd, F_SETFD, flags | FD_CLOEXEC) == -1)
-		goto err;
-
+	if (flags == -1 || fcntl(fd, F_SETFD, flags | FD_CLOEXEC) == -1) {
+		close(fd);
+		return -1;
+	}
 	return fd;
-
-err:
-	close(fd);
-	return -1;
 }

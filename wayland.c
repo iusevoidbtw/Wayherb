@@ -1,10 +1,8 @@
-/* Testing area */
 #include <linux/input-event-codes.h>
 
 #include <sys/mman.h>
 
 #include <signal.h>
-#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -12,27 +10,27 @@
 #include "util.h"
 #include "wayland.h"
 
-/* Globals */
+/* globals */
 static struct wayland_state wayland;
 static uint32_t output = UINT32_MAX;
 static int cur_x = -1, cur_y = -1;
 static int button = 0;
 static uint32_t layer = ZWLR_LAYER_SHELL_V1_LAYER_TOP;
-static bool keyboard_interactive = false;
+static int keyboard_interactive = 0;
 static void *shm_data = NULL;
 
-/* Listeners and handles */
+/* listeners and handles */
 
-/* Layer_shell listener */
+/* layer_shell listener */
 static void
-layer_surface_configure(void *data, struct zwlr_layer_surface_v1 *surface, uint32_t serial, uint32_t w, uint32_t h)
+layer_surface_configure(UNUSED void *data, struct zwlr_layer_surface_v1 *surface, uint32_t serial, UNUSED uint32_t w, UNUSED uint32_t h)
 {
 	zwlr_layer_surface_v1_ack_configure(surface, serial);
 	wl_surface_commit(wayland.wl_surface);
 }
 
 static void
-layer_surface_closed(void *data, struct zwlr_layer_surface_v1 *surface)
+layer_surface_closed(UNUSED void *data, struct zwlr_layer_surface_v1 *surface)
 {
 	zwlr_layer_surface_v1_destroy(surface);
 	wl_surface_destroy(wayland.wl_surface);
@@ -43,29 +41,29 @@ struct zwlr_layer_surface_v1_listener layer_surface_listener = {
 	.closed = layer_surface_closed,
 };
 
-/* Pointer listeners and events */
+/* pointer listeners and events */
 static void
-wl_pointer_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x, wl_fixed_t surface_y)
+wl_pointer_enter(UNUSED void *data, UNUSED struct wl_pointer *wl_pointer, UNUSED uint32_t serial, struct wl_surface *surface, UNUSED wl_fixed_t surface_x, UNUSED wl_fixed_t surface_y)
 {
 	wayland.input_surface = surface;
 }
 
 static void
-wl_pointer_leave(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface)
+wl_pointer_leave(UNUSED void *data, UNUSED struct wl_pointer *wl_pointer, UNUSED uint32_t serial, UNUSED struct wl_surface *surface)
 {
 	cur_x = cur_y = -1;
 	button = 0;
 }	
 
 static void
-wl_pointer_motion(void *data, struct wl_pointer *wl_pointer, uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y)
+wl_pointer_motion(UNUSED void *data, UNUSED struct wl_pointer *wl_pointer, UNUSED uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y)
 {
 	cur_x = wl_fixed_to_int(surface_x);
 	cur_y = wl_fixed_to_int(surface_y);
 }
 
 static void
-wl_pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
+wl_pointer_button(UNUSED void *data, UNUSED struct wl_pointer *wl_pointer, UNUSED uint32_t serial, UNUSED uint32_t time, uint32_t button, uint32_t state)
 {
 	if (wayland.input_surface == wayland.wl_surface) {
 		if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
@@ -85,9 +83,9 @@ struct wl_pointer_listener pointer_listener = {
 	.button = wl_pointer_button,
 };
 
-/* Seat listener */
+/* seat listener */
 static void
-seat_handle_capabilities(void *data, struct wl_seat *wl_seat, enum wl_seat_capability caps)
+seat_handle_capabilities(UNUSED void *data, struct wl_seat *wl_seat, enum wl_seat_capability caps)
 {
 	if ((caps & WL_SEAT_CAPABILITY_POINTER)) {
 		wayland.pointer = wl_seat_get_pointer(wl_seat);
@@ -99,9 +97,9 @@ const struct wl_seat_listener seat_listener = {
 	.capabilities = seat_handle_capabilities,
 };
 
-/* Registry */
+/* registry */
 static void
-registry_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
+registry_global(UNUSED void *data, struct wl_registry *registry, uint32_t name, const char *interface, UNUSED uint32_t version)
 {
 	if (strcmp(interface, wl_compositor_interface.name) == 0) {
 		wayland.compositor = wl_registry_bind(registry, name, &wl_compositor_interface, 1);
@@ -124,7 +122,7 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name, const c
 }
 
 static void
-registry_handle_remove(void *data, struct wl_registry *registry, uint32_t name)
+registry_handle_remove(UNUSED void *data, UNUSED struct wl_registry *registry, UNUSED uint32_t name)
 {
 
 }
@@ -134,7 +132,7 @@ static const struct wl_registry_listener registry_listener = {
 	.global_remove = registry_handle_remove,
 };
 
-/* Wayland intialization and main loop for drawing and input. */
+/* wayland intialization and main loop for drawing and input */
 void
 draw(void)
 {
@@ -186,7 +184,7 @@ create_buffer(const char *text, int height) {
 
 	cairo_set_source_rgba(wayland.cairo, fr, fg, fb, falpha);
 	/*
-	 * TODO: make this based on number of lines. For each line added
+	 * TODO: make this based on number of lines, for each line added
 	 * divide the height by 2
 	 */
 	cairo_move_to(wayland.cairo, font_size, height - font_size/2 - border_size);
@@ -218,43 +216,48 @@ get_height(const char *text)
 void
 init_wayland(const char *text)
 {
-	/* Some variables for setting up our layer_surface */
+	/* some variables for setting up our layer_surface */
 	int height = get_height(text);
 	int exclusive_zone = 0;
-	char *namespace = "herbew";
-	if (exclusive_zone_on == true)
+	char *namespace = "mayherb";
+	if (exclusive_zone_on == 1) {
 		exclusive_zone = height;
+	}
 
-	/* Connect to the wayland server */
+	/* connect to wayland display */
 	wayland.display = wl_display_connect(NULL);
-	if (!wayland.display)
-		die("Failed to create display\n");
+	if (!wayland.display) {
+		die("failed to connect to Wayland display\n");
+	}
 
-	/* Set up our registry for getting events */
+	/* set up our registry for getting events */
 	struct wl_registry *registry = wl_display_get_registry(wayland.display);
 	wl_registry_add_listener(registry, &registry_listener, NULL);
 	wl_display_roundtrip(wayland.display);
 	
-	if (!wayland.compositor)
-		die("No compositor available\n");
+	if (!wayland.compositor) {
+		die("no compositor available\n");
+	}
 
-	if (!wayland.shm)
-		die("Shared memory buffer not available\n");
+	if (!wayland.shm) {
+		die("shared memory buffer not available\n");
+	}
 
-	if (!wayland.layer_shell)
-		die("Layer shell not available\n");
-	
-	/* Cursor image for being able to see the cursor over our notifcations */
+	if (!wayland.layer_shell) {
+		die("layer shell not available\n");
+	}
+
+	/* cursor image for being able to see the cursor over our notifcations */
 	wayland.cursor_theme = wl_cursor_theme_load(NULL, 16, wayland.shm);
 	wayland.cursor_surface = wl_compositor_create_surface(wayland.compositor);
 	
-	/* Buffer */
+	/* buffer */
 	wayland.buffer = create_buffer(text, height);
 
 	wayland.wl_surface = wl_compositor_create_surface(wayland.compositor);
 	wayland.layer_surface = zwlr_layer_shell_v1_get_layer_surface(wayland.layer_shell, wayland.wl_surface, wayland.wl_output, layer, namespace);
 
-	/* Configure how layer surface acts */
+	/* configure how layer surface acts */
 	zwlr_layer_surface_v1_set_size(wayland.layer_surface, width, height);
 	zwlr_layer_surface_v1_set_anchor(wayland.layer_surface, anchor);
 	zwlr_layer_surface_v1_set_exclusive_zone(wayland.layer_surface, exclusive_zone);

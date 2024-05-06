@@ -1,9 +1,9 @@
 CC     ?= CC
-OUTPUT  = wayherb
-SOURCES = util.c wayherb.c wayland.c wlr-layer-shell-unstable-v1.c xdg-shell-protocol.c
+OUTPUT  = mayherb
+SOURCES = util.c mayherb.c wayland.c wlr-layer-shell-unstable-v1.c xdg-shell-protocol.c
 HEADERS = config.h util.h wayland.h wlr-layer-shell-unstable-v1.h xdg-shell-client-protocol.h
 
-CFLAGS  = -lcairo -lwayland-client -lwayland-cursor -lpthread
+CFLAGS  = -std=c99 -pedantic -Wall -Wextra -Wno-unused-variable -lcairo -lwayland-client -lwayland-cursor -lpthread
 
 PREFIX ?= /usr/local
 

@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE
 #include <sys/stat.h>
 
 #include <errno.h>
@@ -13,26 +14,21 @@
 #include "util.h"
 #include "wayland.h"
 
-#define EXIT_ACTION 0
-#define EXIT_FAIL 1
-#define EXIT_DISMISS 2
-
-/* Global variables */
-int exit_code = EXIT_DISMISS;
-int should_exit = 0;
+static volatile sig_atomic_t exit_code = 2;
+static volatile sig_atomic_t should_exit = 0;
 
 void
 expire(int sig)
 {
-	if (sig == SIGUSR2) {
-		exit_code = EXIT_ACTION;
-		should_exit = 1;
-	} else if (sig == SIGUSR1) {
-		should_exit = 1;
-	} else if (sig == SIGALRM) {
-		should_exit = 1;
-	} else {
-		should_exit = 0;
+	switch (sig) {
+		case SIGUSR2:
+			exit_code = EXIT_SUCCESS;
+			should_exit = 1;
+			break;
+		case SIGUSR1:
+		case SIGALRM:
+			should_exit = 1;
+			break;
 	}
 }
 
@@ -57,7 +53,7 @@ time_elapsed(struct timespec *c, const struct timespec *a, const struct timespec
 	}
 }
 
-bool
+int
 time_lessthan(const struct timespec *a, const struct timespec *b)
 {
 	return a->tv_sec == b->tv_sec ?
@@ -111,12 +107,12 @@ main(int argc, char *argv[])
 {
 	if (argc == 0) {
 		/* ISO C11 explicitly states that argc can be 0 (5.1.2.2.1 Program startup) */
-		sem_unlink("/wayherb");
+		sem_unlink("/mayherb");
 		die("argc == 0\n");
 	}
 
 	if (argc == 1) {
-		sem_unlink("/wayherb");
+		sem_unlink("/mayherb");
 		die("usage: %s string ...", argv[0]);
 	}
 
@@ -136,7 +132,7 @@ main(int argc, char *argv[])
 	sigaction(SIGUSR1, &act_ignore, 0);
 	sigaction(SIGUSR2, &act_ignore, 0);
 	
-	sem_t *mutex = sem_open("/wayherb", O_CREAT, 0644, 1);
+	sem_t *mutex = sem_open("/mayherb", O_CREAT, 0644, 1);
 	sem_wait(mutex);
 	
 	sigaction(SIGUSR1, &act_expire, 0);
@@ -165,10 +161,11 @@ main(int argc, char *argv[])
 	}
 	init_wayland(s);
 
-	if (duration != 0)
+	if (duration != 0) {
 		alarm(duration);
+	}
 
-	while (should_exit == 0) {
+	while (!should_exit) {
 		draw();
 
 		last_frame = current_frame;
@@ -184,5 +181,5 @@ main(int argc, char *argv[])
 	sem_close(mutex);
 	quit_wayland();
 	free(s);
-	return exit_code;
+	return (int)exit_code;
 }

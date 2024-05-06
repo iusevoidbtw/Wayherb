@@ -10,7 +10,7 @@
 #include "xdg-shell-client-protocol.h"
 
 struct wayland_state {
-	/* Display */
+	/* display */
 	struct wl_display *display;
 	struct wl_registry *registry;
 	struct wl_compositor *compositor;
@@ -22,11 +22,11 @@ struct wayland_state {
 	struct wl_output *wl_output;
 	struct wl_surface *wl_surface;
 
-	/* Cairo and pixman */
+	/* cairo and pixman */
 	cairo_surface_t *cairo_surface;
 	cairo_t *cairo;
 	
-	/* Input */
+	/* input */
 	struct wl_seat *seat;
 	struct wl_pointer *pointer;
 	struct wl_cursor_image *cursor_image;

@@ -8,5 +8,5 @@ depends on:
 - libwayland + development headers
 - cairo + development headers
 
-you can pipe things to wayherb by doing:
-`<something> | xargs wayherb`
+you can pipe things to mayherb by doing:
+`<something> | xargs mayherb`

@@ -11,7 +11,7 @@
 /* #define HAVE_MKOSTEMP */
 
 /*
- * action options
+ * action options.
  */
 #define DISMISS_BUTTON BTN_LEFT
 #define ACTION_BUTTON BTN_RIGHT
@@ -25,7 +25,8 @@ static double falpha = 1.0;
 static float font_size = 16.0;
 
 /*
- * window options.
+ * window options. to change the height of the window, change font_size
+ * to a larger value above.
  */
 static int32_t margin_right = 0, margin_bottom = 0, margin_left = 0, margin_top = 0;
 static const unsigned int duration = 5;

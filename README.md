@@ -9,10 +9,10 @@ depends on:
 
 ## usage
 
-run `mayherb hello` to display a notification with the text `hello`.
+run `mayherb hello` to display a notification with the text `hello`.  
 arguments are automatically concatenated, so `mayherb hello world` will display "hello world".  
 
-notifications can be dismissed with `DISMISS_BUTTON` (set in config.h, left-click by default). this causes mayherb to exit with a status of EXIT_DISMISS.
+notifications can be dismissed with `DISMISS_BUTTON` (set in config.h, left-click by default). this causes mayherb to exit with a status of EXIT_DISMISS. notifications are also automatically dismissed after `duration` (by default 5) seconds.
 
 notifications can also be accepted with `ACTION_BUTTON` (right-click by default). this causes mayherb to exit with a status of 0 and can be used for actions, e.g:  
 `mayherb notification && echo "notification accepted"`

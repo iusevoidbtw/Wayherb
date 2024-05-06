@@ -14,6 +14,8 @@
 #define TOP ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP
 #define BOTTOM ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM
 
+/* #define DEBUG */
+
 /* Style options */
 static int32_t margin_right = 0, margin_bottom = 0, margin_left = 0, margin_top = 0;
 /*

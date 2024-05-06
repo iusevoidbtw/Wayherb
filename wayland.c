@@ -70,11 +70,9 @@ wl_pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial, ui
 	if (wayland.input_surface == wayland.wl_surface) {
 		if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
 			if (button == BTN_RIGHT) {
-				pid_t pid = getpid();
-				kill(pid, SIGUSR2);	
+				raise(SIGUSR2);
 			} else if (button == BTN_LEFT) {
-				pid_t pid = getpid();
-				kill(pid, SIGUSR1);
+				raise(SIGUSR1);
 			}
 		}
 	}
@@ -273,7 +271,9 @@ init_wayland(int argc, char *argv[])
 	wl_surface_commit(wayland.wl_surface);
 	wl_display_roundtrip(wayland.display);
 
-	fprintf(stdout, "Finished init wayland\n");
+#ifdef DEBUG
+	puts("Finished init wayland");
+#endif /* DEBUG */
 
 	return 1;
 }

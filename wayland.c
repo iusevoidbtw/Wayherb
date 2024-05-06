@@ -1,5 +1,3 @@
-#include <linux/input-event-codes.h>
-
 #include <sys/mman.h>
 
 #include <signal.h>
@@ -67,9 +65,9 @@ wl_pointer_button(UNUSED void *data, UNUSED struct wl_pointer *wl_pointer, UNUSE
 {
 	if (wayland.input_surface == wayland.wl_surface) {
 		if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
-			if (button == BTN_RIGHT) {
+			if (button == ACTION_BUTTON) {
 				raise(SIGUSR2);
-			} else if (button == BTN_LEFT) {
+			} else if (button == DISMISS_BUTTON) {
 				raise(SIGUSR1);
 			}
 		}

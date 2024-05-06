@@ -14,7 +14,7 @@
 #include "util.h"
 #include "wayland.h"
 
-static volatile sig_atomic_t exit_code = 2;
+static volatile sig_atomic_t exit_code = EXIT_DISMISS;
 static volatile sig_atomic_t should_exit = 0;
 
 void

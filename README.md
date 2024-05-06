@@ -24,3 +24,11 @@ you can pipe things to mayherb with `<cmd> | xargs mayherb`.
 mayherb can be configured by copying `config.def.h` to `config.h` (done automatically in the makefile) and editing `config.h`.  
 
 the options should be fairly self-explanatory.
+
+## why is named "mayherb"?
+
+because:
+
+- it rhymes with "way"
+- my cat is named May
+- as of writing this the month is currently May

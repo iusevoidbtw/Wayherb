@@ -1,3 +1,4 @@
+#include <linux/input-event-codes.h>
 #include "wayland.h"
 
 #define LEFT ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT
@@ -8,6 +9,13 @@
 #define UNUSED __attribute__((unused))
 #define NORETURN __attribute__((noreturn))
 /* #define HAVE_MKOSTEMP */
+
+/*
+ * action options
+ */
+#define DISMISS_BUTTON BTN_LEFT
+#define ACTION_BUTTON BTN_RIGHT
+#define EXIT_DISMISS 2
 
 /*
  * font options.

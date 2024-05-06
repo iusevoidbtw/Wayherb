@@ -65,17 +65,59 @@ time_lessthan(const struct timespec *a, const struct timespec *b)
 		a->tv_sec < b->tv_sec;
 }
 
+char *
+concat(int argc, char *argv[])
+{
+	if (argc <= 1) {
+		return NULL;
+	}
+	size_t sz = 0;
+	int i;
+	for (i = 1; i < argc; i++) {
+		sz += strlen(argv[i]);
+		if (i + 1 < argc) {
+			/* + a space */
+			sz++;
+		}
+	}
+	if (sz > 0) {
+		char *s = calloc(sz + 1, sizeof(char)); /* one for the null terminator */
+		char *end;
+		if (s == NULL) {
+			die("calloc failed\n");
+		}
+
+		/*
+		 * note that a buffer overflow shouldn't happen
+		 * since the string we just allocated is guaranteed
+		 * to be large enough to hold everything
+		 */
+		for (i = 1; i < argc; i++) {
+			strcat(s, argv[i]);
+			if (i + 1 < argc) {
+				end = s + strlen(s);
+
+				*end = ' ';
+				*(end + 1) = '\0';
+			}
+		}
+		return s;
+	}
+	return NULL;
+}
+
 int
 main(int argc, char *argv[])
 {
+	if (argc == 0) {
+		/* ISO C11 explicitly states that argc can be 0 (5.1.2.2.1 Program startup) */
+		sem_unlink("/wayherb");
+		die("argc == 0\n");
+	}
+
 	if (argc == 1) {
 		sem_unlink("/wayherb");
-		die("Usage: %s body", argv[0]);
-	}
-	
-	if (argc > 2) {
-		sem_unlink("/wayherb");
-		die("Currently wayherb only allows one argument however this will change\n");
+		die("usage: %s string ...", argv[0]);
 	}
 
 	struct sigaction act_expire, act_ignore;
@@ -117,11 +159,14 @@ main(int argc, char *argv[])
 	clock_settime(CLOCK_MONOTONIC_RAW, &last_frame);
 	current_frame = last_frame;
 
-	init_wayland(argc, argv);
+	char *s = concat(argc, argv);
+	if (s == NULL) {
+		return EXIT_FAILURE;
+	}
+	init_wayland(s);
 
 	if (duration != 0)
 		alarm(duration);
-
 
 	while (should_exit == 0) {
 		draw();
@@ -137,7 +182,7 @@ main(int argc, char *argv[])
 
 	sem_post(mutex);
 	sem_close(mutex);
-	
-	free_wayland();
+	quit_wayland();
+	free(s);
 	return exit_code;
 }

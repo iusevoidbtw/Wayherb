@@ -100,7 +100,7 @@ const struct wl_seat_listener seat_listener = {
 };
 
 /* Registry */
-void
+static void
 registry_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
 {
 	if (strcmp(interface, wl_compositor_interface.name) == 0) {
@@ -123,7 +123,7 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name, const c
 	}
 }
 
-void
+static void
 registry_handle_remove(void *data, struct wl_registry *registry, uint32_t name)
 {
 
@@ -134,8 +134,8 @@ static const struct wl_registry_listener registry_listener = {
 	.global_remove = registry_handle_remove,
 };
 
-/* Wayland intialization, freeing, and main loop for drawing and input. */
-int
+/* Wayland intialization and main loop for drawing and input. */
+void
 draw(void)
 {
 	wl_display_prepare_read(wayland.display);
@@ -145,12 +145,10 @@ draw(void)
 	wl_display_dispatch_pending(wayland.display);
         wl_display_flush(wayland.display);
         /*wl_display_dispatch(wayland.display);*/
-
-	return 0;
 }
 
 static struct wl_buffer *
-create_buffer(int argc, char *argv[], int height) {
+create_buffer(const char *text, int height) {
 	int stride = width * 4;
 	int size = stride * height;
 
@@ -183,7 +181,7 @@ create_buffer(int argc, char *argv[], int height) {
 	cairo_stroke(wayland.cairo);
 	cairo_fill(wayland.cairo);
 
-	cairo_select_font_face(wayland.cairo, "serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_select_font_face(wayland.cairo, FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(wayland.cairo, font_size);
 
 	cairo_set_source_rgba(wayland.cairo, fr, fg, fb, falpha);
@@ -192,14 +190,14 @@ create_buffer(int argc, char *argv[], int height) {
 	 * divide the height by 2
 	 */
 	cairo_move_to(wayland.cairo, font_size, height - font_size/2 - border_size);
-	cairo_show_text(wayland.cairo, argv[1]);
+	cairo_show_text(wayland.cairo, text);
 	cairo_fill(wayland.cairo);
 
 	return buffer;
 }
 
-int
-get_height(int argc, char *argv[])
+static int
+get_height(const char *text)
 {
 	cairo_t *cairo;
 	cairo_surface_t *temp_surface;
@@ -208,7 +206,7 @@ get_height(int argc, char *argv[])
 	cairo_text_extents_t text_extents;
 	cairo_select_font_face(cairo, "serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(cairo, font_size);
-	cairo_text_extents(cairo, argv[1], &text_extents);
+	cairo_text_extents(cairo, text, &text_extents);
 	double line_width = text_extents.width + font_size * 2;
 	if (line_width > width) {
 		return font_size * 2 * 2;
@@ -217,11 +215,11 @@ get_height(int argc, char *argv[])
 	return font_size * 2;		
 }
 
-int
-init_wayland(int argc, char *argv[])
+void
+init_wayland(const char *text)
 {
 	/* Some variables for setting up our layer_surface */
-	int height = get_height(argc, argv);
+	int height = get_height(text);
 	int exclusive_zone = 0;
 	char *namespace = "herbew";
 	if (exclusive_zone_on == true)
@@ -251,7 +249,7 @@ init_wayland(int argc, char *argv[])
 	wayland.cursor_surface = wl_compositor_create_surface(wayland.compositor);
 	
 	/* Buffer */
-	wayland.buffer = create_buffer(argc, argv, height);
+	wayland.buffer = create_buffer(text, height);
 
 	wayland.wl_surface = wl_compositor_create_surface(wayland.compositor);
 	wayland.layer_surface = zwlr_layer_shell_v1_get_layer_surface(wayland.layer_shell, wayland.wl_surface, wayland.wl_output, layer, namespace);
@@ -270,16 +268,13 @@ init_wayland(int argc, char *argv[])
 	wl_surface_attach(wayland.wl_surface, wayland.buffer, 0, 0);
 	wl_surface_commit(wayland.wl_surface);
 	wl_display_roundtrip(wayland.display);
-
-#ifdef DEBUG
-	puts("Finished init wayland");
-#endif /* DEBUG */
-
-	return 1;
 }
 
-int
-free_wayland(void)
+void
+quit_wayland(void)
 {
-	return 1;
+	wl_surface_attach(wayland.wl_surface, NULL, 0, 0);
+	wl_surface_commit(wayland.wl_surface);
+	wl_surface_destroy(wayland.wl_surface);
+	wl_display_disconnect(wayland.display);
 }

@@ -1,7 +1,12 @@
-Wayland notifcation port of herbe https://github.com/dudik/herbe.
+Wayland port of [herbe](https://github.com/dudik/herbe).
+to configure, edit config.h.
 
-To configure edit the config.h in the include directory.
+for usage instructions and documentation, refer to the README in the herbe
+repository.
 
-You can pipe things to wayherb by doing the following:
+depends on:
+- libwayland + development headers
+- cairo + development headers
 
-<some type of output> | xargs wayherb
+you can pipe things to wayherb by doing:
+`<something> | xargs wayherb`

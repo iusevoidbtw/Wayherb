@@ -154,12 +154,12 @@ create_buffer(const char *text, int height) {
 
 	int fd = os_create_anonymous_file(size);
 	if (fd < 0)
-		die("Failed creating a buffer\n");
+		die("failed to create a shm file\n");
 
 	shm_data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (shm_data == MAP_FAILED) {
 		close(fd);
-		die("Mmap failed\n");
+		die("mmap failed\n");
 	}
 	
 	struct wl_shm_pool *pool = wl_shm_create_pool(wayland.shm, fd, size);

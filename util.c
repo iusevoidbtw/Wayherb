@@ -1,13 +1,16 @@
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
 #include <sys/mman.h>
-#include <fcntl.h>
+
 #include <errno.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
 #include "util.h"
 
-void die(const char *format, ...)
+void
+die(const char *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -15,10 +18,10 @@ void die(const char *format, ...)
 	fprintf(stderr, "\n");
 	va_end(ap);
 	exit(EXIT_FAILURE);
-
 }
 
-int os_create_anonymous_file(off_t size)
+int
+os_create_anonymous_file(off_t size)
 {
 	static const char template[] = "/herbew-shared-XXXXXX";
 	const char *path;
@@ -55,7 +58,8 @@ int os_create_anonymous_file(off_t size)
 	return fd;
 }
 
-int create_tmpfile_cloexec(char *tmpname)
+int
+create_tmpfile_cloexec(char *tmpname)
 {
 	int fd;
 #ifdef HAVE_MKOSTEMP
@@ -72,10 +76,10 @@ int create_tmpfile_cloexec(char *tmpname)
 	}
 #endif
 	return fd;
-
 }
 
-int set_cloexec_or_close(int fd)
+int
+set_cloexec_or_close(int fd)
 {
 	long flags;
 
@@ -95,5 +99,4 @@ int set_cloexec_or_close(int fd)
 err:
 	close(fd);
 	return -1;
-
 }

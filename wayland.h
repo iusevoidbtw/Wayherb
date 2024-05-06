@@ -2,13 +2,15 @@
 #define WAYLAND_H
 
 #include <cairo/cairo.h>
+
 #include <wayland-client.h>
 #include <wayland-cursor.h>
+
 #include "wlr-layer-shell-unstable-v1.h"
 #include "xdg-shell-client-protocol.h"
 
 struct wayland_state {
-	//Display
+	/* Display */
 	struct wl_display *display;
 	struct wl_registry *registry;
 	struct wl_compositor *compositor;
@@ -20,11 +22,11 @@ struct wayland_state {
 	struct wl_output *wl_output;
 	struct wl_surface *wl_surface;
 
-	//Cairo and pixman
+	/* Cairo and pixman */
 	cairo_surface_t *cairo_surface;
 	cairo_t *cairo;
 	
-	//Input
+	/* Input */
 	struct wl_seat *seat;
 	struct wl_pointer *pointer;
 	struct wl_cursor_image *cursor_image;

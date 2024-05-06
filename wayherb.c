@@ -1,25 +1,28 @@
+#include <sys/stat.h>
+
+#include <errno.h>
+#include <fcntl.h>
 #include <semaphore.h>
 #include <signal.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <time.h>
-#include <errno.h>
-#include <sys/stat.h>
+#include <unistd.h>
+
+#include "config.h"
 #include "util.h"
 #include "wayland.h"
-#include "config.h"
 
 #define EXIT_ACTION 0
 #define EXIT_FAIL 1
 #define EXIT_DISMISS 2
 
-//Local variables
+/* Global variables */
 int exit_code = EXIT_DISMISS;
 int should_exit = 0;
 
-void expire(int sig)
+void
+expire(int sig)
 {
 	if (sig == SIGUSR2) {
 		exit_code = EXIT_ACTION;
@@ -29,37 +32,41 @@ void expire(int sig)
 	} else if (sig == SIGALRM) {
 		should_exit = 1;
 	} else {
-                should_exit = 0;
-        }
+		should_exit = 0;
+	}
 }
 
-void time_set (struct timespec *t, uint64_t seconds, uint64_t nanosec) {
-  t->tv_sec = seconds;
-  t->tv_nsec = nanosec;
+void
+time_set(struct timespec *t, uint64_t seconds, uint64_t nanosec)
+{
+	t->tv_sec = seconds;
+	t->tv_nsec = nanosec;
 }
 
-void time_elapsed (struct timespec *c, const struct timespec *a, const struct timespec *b) {
-  c->tv_sec = a->tv_sec - b->tv_sec;
-  if (b->tv_nsec > a->tv_nsec)
-    {
-      c->tv_sec--;
-      c->tv_nsec = 1000000000;
-      c->tv_nsec += a->tv_nsec;
-      c->tv_nsec -= b->tv_nsec;
-    }
-  else
-    {
-      c->tv_nsec = a->tv_nsec - b->tv_nsec;
-    }
+void
+time_elapsed(struct timespec *c, const struct timespec *a, const struct timespec *b)
+{
+	c->tv_sec = a->tv_sec - b->tv_sec;
+	if (b->tv_nsec > a->tv_nsec) {
+		c->tv_sec--;
+		c->tv_nsec = 1000000000;
+		c->tv_nsec += a->tv_nsec;
+		c->tv_nsec -= b->tv_nsec;
+	} else {
+		c->tv_nsec = a->tv_nsec - b->tv_nsec;
+	}
 }
 
-bool time_lessthan(const struct timespec *a, const struct timespec *b) {
-        return a->tv_sec == b->tv_sec ?
-            a->tv_nsec < b->tv_nsec :
-            a->tv_sec < b->tv_sec;
+bool
+time_lessthan(const struct timespec *a, const struct timespec *b)
+{
+	return a->tv_sec == b->tv_sec ?
+		a->tv_nsec < b->tv_nsec :
+		a->tv_sec < b->tv_sec;
 }
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	if (argc == 1) {
 		sem_unlink("/wayherb");
@@ -93,43 +100,39 @@ int main(int argc, char *argv[])
 	sigaction(SIGUSR1, &act_expire, 0);
 	sigaction(SIGUSR2, &act_expire, 0);
 	
-        struct timespec last_frame;
-        struct timespec current_frame;
-        struct timespec frame_delta;
-        struct timespec sleep_time;
-        struct timespec limit;
+	struct timespec last_frame;
+	struct timespec current_frame;
+	struct timespec frame_delta;
+	struct timespec sleep_time;
+	struct timespec limit;
 
-        memset(&last_frame, 0, sizeof(struct timespec));
-        memset(&current_frame, 0, sizeof(struct timespec));
-        memset(&frame_delta, 0, sizeof(struct timespec));
-        memset(&sleep_time, 0, sizeof(struct timespec));
-        memset(&limit, 0, sizeof(struct timespec));
+	memset(&last_frame, 0, sizeof(struct timespec));
+	memset(&current_frame, 0, sizeof(struct timespec));
+	memset(&frame_delta, 0, sizeof(struct timespec));
+	memset(&sleep_time, 0, sizeof(struct timespec));
+	memset(&limit, 0, sizeof(struct timespec));
 
-        time_set(&limit, 0, 40000000);
+	time_set(&limit, 0, 40000000);
 
-        clock_settime(CLOCK_MONOTONIC_RAW, &last_frame);
-        current_frame = last_frame;
+	clock_settime(CLOCK_MONOTONIC_RAW, &last_frame);
+	current_frame = last_frame;
 
-        init_wayland(argc, argv);
+	init_wayland(argc, argv);
 
 	if (duration != 0)
 		alarm(duration);
-	
-	
-	for (;;) {
-            while(should_exit == 0) {
-                draw();
 
-                last_frame = current_frame;
-                clock_settime(CLOCK_MONOTONIC_RAW, &current_frame);
-                time_elapsed(&frame_delta, &current_frame, &last_frame);
-                if(time_lessthan(&frame_delta, &limit)) {
-                    time_elapsed(&sleep_time, &limit, &frame_delta);
-                    nanosleep(&sleep_time, NULL);
-                }
-            }
 
-		break;
+	while (should_exit == 0) {
+		draw();
+
+		last_frame = current_frame;
+		clock_settime(CLOCK_MONOTONIC_RAW, &current_frame);
+		time_elapsed(&frame_delta, &current_frame, &last_frame);
+		if (time_lessthan(&frame_delta, &limit)) {
+			time_elapsed(&sleep_time, &limit, &frame_delta);
+			nanosleep(&sleep_time, NULL);
+		}
 	}
 
 	sem_post(mutex);

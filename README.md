@@ -17,7 +17,9 @@ mayflower has been tested to compile and run successfully with gcc, clang and tc
 
 ## usage
 
-run `mayflower hello` to display a notification with the text `hello`.  
+run:  
+`mayflower hello`  
+to display a notification with the text `hello`.  
 arguments are automatically concatenated, so `mayflower hello world` will display "hello world".  
 
 notifications can be dismissed with `DISMISS_BUTTON` (set in config.h, left-click by default). this causes mayflower to exit with a status of EXIT_DISMISS. notifications are also automatically dismissed after `duration` (by default 5) seconds.
@@ -31,7 +33,11 @@ pkill -SIGUSR1 mayflower # dismiss notification
 pkill -SIGUSR2 mayflower # accept notification
 ```
 
-you can pipe things to mayflower with `<cmd> | xargs mayflower`.
+to change the `duration` time after which the notification is auto-dismissed, use the `-d`/`--duration` option:
+```
+mayflower -d 25 very important notification # will stay on-screen for 25 seconds!
+mayflower -d 0 another important notification # setting the duration to 0 disables auto-dismiss
+```
 
 ## configuration
 

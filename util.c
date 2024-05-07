@@ -1,8 +1,10 @@
 #define _POSIX_C_SOURCE 200809L
 #include <sys/mman.h>
 
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +22,7 @@ die(const char *format, ...)
 	vfprintf(stderr, format, ap);
 	putc('\n', stderr);
 	va_end(ap);
-	exit(EXIT_FAILURE);
+	exit(1);
 }
 
 int
@@ -100,4 +102,39 @@ set_cloexec_or_close(int fd)
 		return -1;
 	}
 	return fd;
+}
+
+int
+strtouint(unsigned int *res, const char *s, int base)
+{
+	/*
+	 * safely convert the string s into an unsigned integer and store it in *res.
+	 * returns 0 on success or -1 on error.
+	 * if an error occurs, the contents of *res are unchanged.
+	 */
+	if (s == NULL || *s == '\0' || isspace(*s)) {
+		fputs("bad number: bad string\n", stderr);
+	} else if (res == NULL) {
+		fputs("bad number: bad output pointer\n", stderr);
+	} else if (!(isdigit(*s) || *s == '+' || *s == '-')) {
+		fputs("bad number: extra characters at start of input\n", stderr);
+	} else {
+		char *end;
+		long long l;
+		errno = 0;
+		l = strtoll(s, &end, base);
+		if (l > UINT_MAX || (errno == ERANGE && l == LLONG_MAX)) {
+			fputs("bad number: integer overflow\n", stderr);
+		} else if (l < 0) {
+			fputs("bad number: cannot be negative\n", stderr);
+		} else if (errno == ERANGE && l == LLONG_MIN) {
+			fputs("bad number: integer underflow\n", stderr);
+		} else if (*end != '\0') {
+			fputs("bad number: extra characters at end of input\n", stderr);
+		} else {
+			*res = (unsigned int)l;
+			return 0;
+		}
+	}
+	return -1;
 }

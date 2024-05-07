@@ -24,7 +24,7 @@ static float font_size = 16.0;
  * to a larger value above.
  */
 static int32_t margin_right = 0, margin_bottom = 0, margin_left = 0, margin_top = 0;
-static const unsigned int duration = 5;
+static unsigned int duration = 5; /* set to 0 to disable auto-dismiss */
 static uint32_t anchor = TOP + RIGHT;
 static uint32_t width = 450;
 static const unsigned int border_size = 4;

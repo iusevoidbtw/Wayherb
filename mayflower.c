@@ -17,12 +17,12 @@
 static volatile sig_atomic_t exit_code = EXIT_DISMISS;
 static volatile sig_atomic_t should_exit = 0;
 
-void
+static void
 expire(int sig)
 {
 	switch (sig) {
 		case SIGUSR2:
-			exit_code = EXIT_SUCCESS;
+			exit_code = 0;
 			should_exit = 1;
 			break;
 		case SIGUSR1:
@@ -32,14 +32,14 @@ expire(int sig)
 	}
 }
 
-void
+static void
 time_set(struct timespec *t, uint64_t seconds, uint64_t nanosec)
 {
 	t->tv_sec = seconds;
 	t->tv_nsec = nanosec;
 }
 
-void
+static void
 time_elapsed(struct timespec *c, const struct timespec *a, const struct timespec *b)
 {
 	c->tv_sec = a->tv_sec - b->tv_sec;
@@ -53,7 +53,7 @@ time_elapsed(struct timespec *c, const struct timespec *a, const struct timespec
 	}
 }
 
-int
+static int
 time_lessthan(const struct timespec *a, const struct timespec *b)
 {
 	return a->tv_sec == b->tv_sec ?
@@ -61,7 +61,7 @@ time_lessthan(const struct timespec *a, const struct timespec *b)
 		a->tv_sec < b->tv_sec;
 }
 
-char *
+static char *
 concat(int argc, char *argv[])
 {
 	if (argc <= 1) {
@@ -102,6 +102,30 @@ concat(int argc, char *argv[])
 	return NULL;
 }
 
+NORETURN
+static void
+help(const char *argv0)
+{
+	sem_unlink("/mayflower");
+	die("usage: %s [OPTION] STRING ...\n"
+		"displays STRING and (optionally) any following arguments concatenated together\n"
+		"in a notification window."
+		"\n\n"
+		"possible OPTIONs are:\n"
+		"-d SECONDS        --duration SECONDS        sets the timeout before the notification is automatically\n"
+		"                                                dismissed to SECONDS seconds; set to 0 to disable\n"
+		"                                                auto-dismiss\n"
+		"--help                                      print this message and exit\n", argv0);
+}
+
+NORETURN
+static void
+usage(const char *argv0)
+{
+	sem_unlink("/mayflower");
+	die("%s: use '%s --help' for usage instructions", argv0, argv0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -112,8 +136,29 @@ main(int argc, char *argv[])
 	}
 
 	if (argc == 1) {
-		sem_unlink("/mayflower");
-		die("usage: %s string ...", argv[0]);
+		usage(argv[0]);
+	}
+	int i = 1;
+        for (; i < argc; i++) {
+                if (strcmp(argv[i], "--") == 0) {
+                        break;
+		} else if (strcmp(argv[i], "--help") == 0) {
+			help(argv[0]);
+                } else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--duration") == 0) {
+			if (i + 1 < argc) {
+				if (strtouint(&duration, argv[++i], 10) < 0) {
+					sem_unlink("/mayflower");
+					exit(1);
+				}
+			} else {
+				sem_unlink("/mayflower");
+				die("%s: missing required argument for option '%s'\n", argv[0], argv[i]);
+			}
+                } else if (argv[i][0] == '-') {
+			usage(argv[0]);
+		} else {
+			break;
+		}
 	}
 
 	struct sigaction act_expire, act_ignore;
@@ -155,9 +200,9 @@ main(int argc, char *argv[])
 	clock_settime(CLOCK_MONOTONIC_RAW, &last_frame);
 	current_frame = last_frame;
 
-	char *s = concat(argc, argv);
+	char *s = concat(argc - i + 1, argv + i - 1);
 	if (s == NULL) {
-		return EXIT_FAILURE;
+		return 1;
 	}
 	init_wayland(s);
 

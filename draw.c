@@ -5,8 +5,8 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "draw.h"
 #include "util.h"
-#include "wayland.h"
 
 /* globals */
 static struct wayland_state wayland;
@@ -148,9 +148,10 @@ create_buffer(const char *text, int height) {
 	int stride = width * 4;
 	int size = stride * height;
 
-	int fd = os_create_anonymous_file(size);
-	if (fd < 0)
-		die("failed to create a shm file\n");
+	int fd = create_tmpfile(size);
+	if (fd < 0) {
+		die("failed to create temporary file\n");
+	}
 
 	shm_data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (shm_data == MAP_FAILED) {
@@ -177,7 +178,7 @@ create_buffer(const char *text, int height) {
 	cairo_stroke(wayland.cairo);
 	cairo_fill(wayland.cairo);
 
-	cairo_select_font_face(wayland.cairo, FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_select_font_face(wayland.cairo, font, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(wayland.cairo, font_size);
 
 	cairo_set_source_rgba(wayland.cairo, fr, fg, fb, falpha);
@@ -200,7 +201,7 @@ get_height(const char *text)
 	temp_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, 1);
 	cairo = cairo_create(temp_surface);
 	cairo_text_extents_t text_extents;
-	cairo_select_font_face(cairo, "serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_select_font_face(cairo, font, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(cairo, font_size);
 	cairo_text_extents(cairo, text, &text_extents);
 	double line_width = text_extents.width + font_size * 2;
@@ -217,7 +218,7 @@ init_wayland(const char *text)
 	/* some variables for setting up our layer_surface */
 	int height = get_height(text);
 	int exclusive_zone = 0;
-	char *namespace = "mayherb";
+	char *namespace = "mayflower";
 	if (exclusive_zone_on == 1) {
 		exclusive_zone = height;
 	}

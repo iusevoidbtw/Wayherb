@@ -24,9 +24,9 @@ die(const char *format, ...)
 }
 
 int
-os_create_anonymous_file(off_t size)
+create_tmpfile(off_t size)
 {
-	static const char template[] = "/mayherb-shared-XXXXXX";
+	static const char template[] = "/mayflower-shared-XXXXXX";
 	const char *path;
 	char *name;
 	int fd;

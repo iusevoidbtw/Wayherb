@@ -11,8 +11,8 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "draw.h"
 #include "util.h"
-#include "wayland.h"
 
 static volatile sig_atomic_t exit_code = EXIT_DISMISS;
 static volatile sig_atomic_t should_exit = 0;
@@ -107,12 +107,12 @@ main(int argc, char *argv[])
 {
 	if (argc == 0) {
 		/* ISO C11 explicitly states that argc can be 0 (5.1.2.2.1 Program startup) */
-		sem_unlink("/mayherb");
+		sem_unlink("/mayflower");
 		die("argc == 0\n");
 	}
 
 	if (argc == 1) {
-		sem_unlink("/mayherb");
+		sem_unlink("/mayflower");
 		die("usage: %s string ...", argv[0]);
 	}
 
@@ -132,7 +132,7 @@ main(int argc, char *argv[])
 	sigaction(SIGUSR1, &act_ignore, 0);
 	sigaction(SIGUSR2, &act_ignore, 0);
 	
-	sem_t *mutex = sem_open("/mayherb", O_CREAT, 0644, 1);
+	sem_t *mutex = sem_open("/mayflower", O_CREAT, 0644, 1);
 	sem_wait(mutex);
 	
 	sigaction(SIGUSR1, &act_expire, 0);

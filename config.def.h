@@ -1,10 +1,5 @@
 #include <linux/input-event-codes.h>
-#include "wayland.h"
-
-#define LEFT ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT
-#define RIGHT ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT
-#define TOP ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP
-#define BOTTOM ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM
+#include "draw.h"
 
 #define UNUSED __attribute__((unused))
 #define NORETURN __attribute__((noreturn))
@@ -20,7 +15,7 @@
 /*
  * font options.
  */
-#define FONT "serif"
+static const char *font = "serif";
 static double falpha = 1.0;
 static float font_size = 16.0;
 

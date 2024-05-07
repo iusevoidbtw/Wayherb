@@ -1,7 +1,7 @@
 CC     ?= CC
-OUTPUT  = mayherb
-SOURCES = util.c mayherb.c wayland.c wlr-layer-shell-unstable-v1.c xdg-shell-protocol.c
-HEADERS = config.h util.h wayland.h wlr-layer-shell-unstable-v1.h xdg-shell-client-protocol.h
+OUTPUT  = mayflower
+SOURCES = draw.c util.c mayflower.c wlr-layer-shell-unstable-v1.c xdg-shell-protocol.c
+HEADERS = config.h draw.h util.h wlr-layer-shell-unstable-v1.h xdg-shell-client-protocol.h
 
 CFLAGS  = -g -Os -std=c99 -pedantic -Wall -Wextra -Wno-unused-variable -lcairo -lwayland-client -lwayland-cursor -lpthread
 
@@ -13,7 +13,7 @@ $(OUTPUT): $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -o $(OUTPUT) $(SOURCES)
 
 config.h: config.def.h
-	cp config.def.h config.h
+	cp -i config.def.h config.h
 
 wlr-layer-shell-unstable-v1.c: wlr-layer-shell-unstable-v1.xml
 	wayland-scanner private-code wlr-layer-shell-unstable-v1.xml wlr-layer-shell-unstable-v1.c

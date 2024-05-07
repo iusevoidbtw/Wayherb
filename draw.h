@@ -9,6 +9,11 @@
 #include "wlr-layer-shell-unstable-v1.h"
 #include "xdg-shell-client-protocol.h"
 
+#define LEFT ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT
+#define RIGHT ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT
+#define TOP ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP
+#define BOTTOM ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM
+
 struct wayland_state {
 	/* display */
 	struct wl_display *display;

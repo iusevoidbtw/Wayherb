@@ -141,6 +141,7 @@ main(int argc, char *argv[])
 	int i = 1;
         for (; i < argc; i++) {
                 if (strcmp(argv[i], "--") == 0) {
+			i++;
                         break;
 		} else if (strcmp(argv[i], "--help") == 0) {
 			help(argv[0]);

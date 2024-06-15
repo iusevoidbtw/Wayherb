@@ -1,29 +1,29 @@
-#ifndef WAYLAND_H
-#define WAYLAND_H
+#ifndef DRAW_H
+#define DRAW_H
 
 #include <cairo/cairo.h>
 
 #include <wayland-client.h>
 #include <wayland-cursor.h>
 
-#include "wlr-layer-shell-unstable-v1.h"
-#include "xdg-shell-client-protocol.h"
+#include "wayland/wlr-layer-shell-unstable-v1.h"
+#include "wayland/xdg-shell-client-protocol.h"
 
 #define LEFT ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT
 #define RIGHT ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT
 #define TOP ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP
 #define BOTTOM ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM
 
-struct wayland_state {
+struct draw_state {
 	/* display */
-	struct wl_display *display;
-	struct wl_registry *registry;
-	struct wl_compositor *compositor;
-	struct wl_shm *shm;
-	struct wl_shm_pool *pool;
-	struct wl_buffer *buffer;
-	struct zwlr_layer_shell_v1 *layer_shell;
-	struct zwlr_layer_surface_v1 *layer_surface;
+	struct wl_display *wl_display;
+	//struct wl_registry *wl_registry;
+	struct wl_compositor *wl_compositor;
+	struct wl_shm *wl_shm;
+	struct wl_shm_pool *wl_shm_pool;
+	struct wl_buffer *wl_buffer;
+	struct zwlr_layer_shell_v1 *wl_layer_shell;
+	struct zwlr_layer_surface_v1 *wl_layer_surface;
 	struct wl_output *wl_output;
 	struct wl_surface *wl_surface;
 
@@ -32,15 +32,15 @@ struct wayland_state {
 	cairo_t *cairo;
 	
 	/* input */
-	struct wl_seat *seat;
-	struct wl_pointer *pointer;
-	struct wl_cursor_image *cursor_image;
-	struct wl_cursor_theme *cursor_theme;
-	struct wl_surface *cursor_surface, *input_surface;
+	struct wl_seat *wl_seat;
+	struct wl_pointer *wl_pointer;
+	struct wl_cursor_image *wl_cursor_image;
+	struct wl_cursor_theme *wl_cursor_theme;
+	struct wl_surface *wl_cursor_surface, *wl_input_surface;
 };
 
-void init_wayland(const char *);
-void draw(void);
-void quit_wayland(void);
+void dispatch(void);
+void init_draw(const char *text);
+void quit_draw(void);
 
 #endif

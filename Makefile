@@ -1,6 +1,6 @@
 CC     ?= CC
 OUTPUT  = mayflower
-SOURCES = draw.c mayflower.c util/strtoflt.c util/strtonum.c util/util.c wayland/wlr-layer-shell-unstable-v1.c wayland/xdg-shell-protocol.c
+SOURCES = draw.c mayflower.c util/strtoflt.c util/util.c wayland/wlr-layer-shell-unstable-v1.c wayland/xdg-shell-protocol.c
 HEADERS = config.h draw.h util/util.h wayland/wlr-layer-shell-unstable-v1.h wayland/xdg-shell-client-protocol.h
 
 CFLAGS  = -g -Os -std=c99 -pedantic -Wall -Wextra -Wno-unused-variable -lcairo -lwayland-client -lwayland-cursor -lpthread

@@ -11,9 +11,18 @@ depends on:
 
 a simple `make` should be enough. if your system doesn't have `cc` as an alias to a C compiler, specify it manually with, for example, `make CC=gcc`.
 
-you might want to edit `config.h` before building; see the configuration section.
+you might want to change certain configuration options before building; see the configuration section.
 
-mayflower has been tested to compile and run successfully with gcc, clang and tcc.
+mayflower has been tested to compile and run successfully with:
+
+- [GCC](https://gcc.gnu.org)
+- [Clang](https://clang.llvm.org)
+- [TCC](https://bellard.org/tcc)
+- [PCC](http://pcc.ludd.ltu.se) (throws some warnings)
+
+mayflower has been tested to NOT compile successfully with:
+
+- [cproc](https://git.sr.ht/~mcf/cproc) (doesn't support `long double`)
 
 ## usage
 
@@ -46,4 +55,4 @@ mayflower -d 2.5 not an important notification # will stay on screen for 2.5 sec
 
 mayflower can be configured by copying `config.def.h` to `config.h` (done automatically in the makefile) and editing `config.h`.  
 
-the options should be fairly self-explanatory.
+the options should be fairly self-explanatory (hopefully).

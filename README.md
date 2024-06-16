@@ -37,10 +37,8 @@ to change the duration time after which the notification is auto-dismissed, use 
 ```
 mayflower -d 25 very important notification    # will stay on-screen for 25 seconds!
 mayflower -d 0 another important notification  # setting the duration to 0 disables auto-dismiss
-```
 
-the duration can be a floating-point value unless `FLOAT_DURATION` is disabled in config.h (enabled by default):
-```
+# the duration can be a floating-point value:
 mayflower -d 2.5 not an important notification # will stay on screen for 2.5 seconds
 ```
 

@@ -2,7 +2,10 @@
 
 #define _POSIX_C_SOURCE
 
+#include <sys/time.h>
+
 #include <errno.h>
+#include <float.h>
 #include <limits.h>
 #include <semaphore.h>
 #include <signal.h>
@@ -13,12 +16,6 @@
 #include "config.h"
 #include "draw.h"
 #include "util/util.h"
-
-#if FLOAT_DURATION
-#include <sys/time.h>
-
-#include <float.h>
-#endif
 
 static volatile sig_atomic_t exitstatus = EXIT_DISMISS;
 static volatile sig_atomic_t should_exit = 0;
@@ -122,11 +119,7 @@ main(int argc, char *argv[])
                 } else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--duration") == 0) {
 			if (i + 1 < argc) {
 				const char *errstr;
-#if FLOAT_DURATION
 				duration = strtoflt(argv[++i], 0, DBL_MAX, &errstr);
-#else
-				duration = strtonum(argv[++i], 0, UINT_MAX, &errstr);
-#endif
 				if (errstr) {
 					sem_unlink("/mayflower");
 					die("converting string '%s' to number: %s", argv[i], errstr);
@@ -169,7 +162,6 @@ main(int argc, char *argv[])
 		return 1;
 	init_draw(s);
 
-#if FLOAT_DURATION
 	if (duration != 0) {
 		struct itimerval it;
 		it.it_interval.tv_sec = 0;
@@ -178,10 +170,6 @@ main(int argc, char *argv[])
 		it.it_value.tv_usec = (suseconds_t)(duration * 1000000) % 1000000;
 		setitimer(ITIMER_REAL, &it, NULL);
 	}
-#else
-	if (duration != 0)
-		alarm(duration);
-#endif
 
 	while (!should_exit)
 		dispatch();

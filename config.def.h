@@ -26,14 +26,7 @@ static float font_size   = 16.0;
 /*
  * notification options.
  */
-
-#define FLOAT_DURATION 1            /* set to 0 to only allow integers as duration */
-
-#if FLOAT_DURATION
-static double duration       = 5.0; /* set to 0 to disable auto-dismiss */
-#else
-static unsigned int duration = 5;   /* set to 0 to disable auto-dismiss */
-#endif
+static double duration = 5.0; /* set to 0.0 to disable auto-dismiss */
 
 /*
  * window options. 
@@ -51,7 +44,7 @@ static int32_t margin_top    = 0;
  * BOTTOM + RIGHT = bottom right corner of screen
  * etc etc
  */
-static uint32_t anchor                = TOP + RIGHT; /* TOP + RIGHT = anchor to topright, etc */
+static uint32_t anchor                = TOP + RIGHT;
 
 /*
  * window width & border size

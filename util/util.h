@@ -11,10 +11,6 @@
 double strtoflt(const char *numstr, double minval, double maxval,
 		const char **errstrp);
 
-/* strtonum.c */
-long long strtonum(const char *numstr, long long minval, long long maxval,
-		const char **errstrp);
-
 /* util.c */
 NORETURN void die(const char *format, ...);
 int create_tmpfile(off_t size);

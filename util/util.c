@@ -1,10 +1,8 @@
-#define _POSIX_C_SOURCE 200809L
-#include <sys/mman.h>
+/* See LICENSE file for copyright and license details. */
 
-#include <ctype.h>
+#define _POSIX_C_SOURCE 200112L
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

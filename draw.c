@@ -1,3 +1,5 @@
+/* See LICENSE file for copyright and license details. */
+
 #include <sys/mman.h>
 
 #include <signal.h>
@@ -156,11 +158,11 @@ create_buffer(const char *text, int height) {
 	/*cairo_scale(draw_state.cairo, width, height);*/
 	cairo_rectangle(draw_state.cairo, 0.0, 0.0, 1.0, 1.0);
 	/*cairo_clip(draw_state.cairo);*/
-	cairo_set_source_rgba(draw_state.cairo, bgr, bgg, bgb, alpha);
+	cairo_set_source_rgba(draw_state.cairo, bgr, bgg, bgb, background_alpha);
 	cairo_paint(draw_state.cairo);
 
 	cairo_set_line_width(draw_state.cairo, border_size);
-	cairo_set_source_rgba(draw_state.cairo, brr, brg, brb, bralpha);
+	cairo_set_source_rgba(draw_state.cairo, brr, brg, brb, border_alpha);
 	cairo_rectangle(draw_state.cairo, 0, 0, width, height);
 	cairo_stroke(draw_state.cairo);
 	cairo_fill(draw_state.cairo);
@@ -168,7 +170,7 @@ create_buffer(const char *text, int height) {
 	cairo_select_font_face(draw_state.cairo, font, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(draw_state.cairo, font_size);
 
-	cairo_set_source_rgba(draw_state.cairo, fr, fg, fb, falpha);
+	cairo_set_source_rgba(draw_state.cairo, fr, fg, fb, font_alpha);
 	/*
 	 * TODO: make this based on number of lines, for each line added
 	 * divide the height by 2

@@ -1,5 +1,6 @@
+/* See LICENSE file for copyright and license details. */
+
 #define _POSIX_C_SOURCE
-#include <sys/stat.h>
 
 #include <errno.h>
 #include <limits.h>
@@ -13,7 +14,13 @@
 #include "draw.h"
 #include "util/util.h"
 
-static volatile sig_atomic_t exit_code = EXIT_DISMISS;
+#if FLOAT_DURATION
+#include <sys/time.h>
+
+#include <float.h>
+#endif
+
+static volatile sig_atomic_t exitstatus = EXIT_DISMISS;
 static volatile sig_atomic_t should_exit = 0;
 
 static void
@@ -21,7 +28,7 @@ expire(int sig)
 {
 	switch (sig) {
 	case SIGUSR2:
-		exit_code = 0;
+		exitstatus = 0;
 		should_exit = 1;
 		break;
 	case SIGUSR1:
@@ -106,7 +113,7 @@ main(int argc, char *argv[])
 		usage(argv[0]);
 
 	int i = 1;
-        for (; i < argc; i++) {
+        for (; i < argc; ++i) {
                 if (strcmp(argv[i], "--") == 0) {
 			++i;
                         break;
@@ -115,10 +122,14 @@ main(int argc, char *argv[])
                 } else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--duration") == 0) {
 			if (i + 1 < argc) {
 				const char *errstr;
-				duration = (unsigned int)strtonum(argv[++i], 0, UINT_MAX, &errstr);
+#if FLOAT_DURATION
+				duration = strtoflt(argv[++i], 0, DBL_MAX, &errstr);
+#else
+				duration = strtonum(argv[++i], 0, UINT_MAX, &errstr);
+#endif
 				if (errstr) {
 					sem_unlink("/mayflower");
-					die("converting string '%s' to integer: %s", argv[i], errstr);
+					die("converting string '%s' to number: %s", argv[i], errstr);
 				}
 			} else {
 				sem_unlink("/mayflower");
@@ -158,8 +169,19 @@ main(int argc, char *argv[])
 		return 1;
 	init_draw(s);
 
+#if FLOAT_DURATION
+	if (duration != 0) {
+		struct itimerval it;
+		it.it_interval.tv_sec = 0;
+		it.it_interval.tv_usec = 0;
+		it.it_value.tv_sec = (time_t)duration;
+		it.it_value.tv_usec = (suseconds_t)(duration * 1000000) % 1000000;
+		setitimer(ITIMER_REAL, &it, NULL);
+	}
+#else
 	if (duration != 0)
 		alarm(duration);
+#endif
 
 	while (!should_exit)
 		dispatch();
@@ -168,5 +190,5 @@ main(int argc, char *argv[])
 	sem_close(mutex);
 	quit_draw();
 	free(s);
-	return (int)exit_code;
+	return (int)exitstatus;
 }

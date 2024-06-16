@@ -33,10 +33,15 @@ pkill -SIGUSR1 mayflower # dismiss notification
 pkill -SIGUSR2 mayflower # accept notification
 ```
 
-to change the `duration` time after which the notification is auto-dismissed, use the `-d`/`--duration` option:
+to change the duration time after which the notification is auto-dismissed, use the `-d`/`--duration` option:
 ```
-mayflower -d 25 very important notification # will stay on-screen for 25 seconds!
-mayflower -d 0 another important notification # setting the duration to 0 disables auto-dismiss
+mayflower -d 25 very important notification    # will stay on-screen for 25 seconds!
+mayflower -d 0 another important notification  # setting the duration to 0 disables auto-dismiss
+```
+
+the duration can be a floating-point value unless `FLOAT_DURATION` is disabled in config.h (enabled by default):
+```
+mayflower -d 2.5 not an important notification # will stay on screen for 2.5 seconds
 ```
 
 ## configuration
@@ -44,11 +49,3 @@ mayflower -d 0 another important notification # setting the duration to 0 disabl
 mayflower can be configured by copying `config.def.h` to `config.h` (done automatically in the makefile) and editing `config.h`.  
 
 the options should be fairly self-explanatory.
-
-## why "may"?
-
-because:
-
-- it rhymes with "way"
-- my cat is named May
-- as of writing this the month is currently May

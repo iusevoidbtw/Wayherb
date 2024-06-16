@@ -6,6 +6,12 @@
 
 #include "draw.h"
 
+#ifndef CONFIG_H
+#define CONFIG_H
+
+/*
+ * config options start here.
+ */
 #define UNUSED __attribute__((__unused__))
 #define NORETURN __attribute__((__noreturn__))
 
@@ -81,3 +87,5 @@ static const float brb = 0.643f;
 static const float fr = 0.972f;
 static const float fg = 0.972f;
 static const float fb = 0.949f;
+
+#endif

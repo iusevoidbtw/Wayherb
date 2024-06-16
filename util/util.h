@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 
+#include "../config.h"
+
 /* strtoflt.c */
 double strtoflt(const char *numstr, double minval, double maxval,
 		const char **errstrp);

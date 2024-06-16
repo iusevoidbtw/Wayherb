@@ -1,6 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
-#define _POSIX_C_SOURCE 200112L
+#define _POSIX_C_SOURCE 200809L
 #include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
@@ -41,8 +41,7 @@ create_tmpfile(off_t size)
 	if (!name)
 		return -1;
 
-	strcpy(name, path);
-	strcat(name, template);
+	strcpy(stpcpy(name, path), template);
 
 	fd = mkstemp(name);
 	if (fd >= 0)

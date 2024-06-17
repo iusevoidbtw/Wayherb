@@ -48,7 +48,9 @@ static int32_t margin_top    = 0;
  * anchor options, e.g:
  * TOP + RIGHT = anchor window to top right, window will show up on the top right corner of the screen
  * BOTTOM + RIGHT = bottom right corner of screen
- * etc etc
+ * etc.
+ *
+ * available values are TOP, RIGHT, BOTTOM, and LEFT.
  */
 static uint32_t anchor                = TOP + RIGHT;
 

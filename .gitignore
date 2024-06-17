@@ -1,0 +1,7 @@
+config.h
+mayflower
+*.o
+util/*.o
+wayland/*.c
+wayland/*.h
+wayland/*.o

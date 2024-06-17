@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
-#define _POSIX_C_SOURCE
-
+#define _POSIX_C_SOURCE 200809L /* for stpcpy */
 #include <sys/time.h>
 
 #include <errno.h>
@@ -15,7 +14,7 @@
 
 #include "config.h"
 #include "draw.h"
-#include "util/util.h"
+#include "util.h"
 
 static volatile sig_atomic_t exitstatus = EXIT_DISMISS;
 static volatile sig_atomic_t should_exit = 0;
@@ -52,7 +51,7 @@ concat(int argc, char *argv[])
 	}
 	if (sz > 0) {
 		char *s = malloc(sz + 1);
-		char *end;
+		char *end = s;
 		if (!s)
 			die("malloc: out of memory");
 
@@ -61,13 +60,11 @@ concat(int argc, char *argv[])
 		 * since the string we just allocated is guaranteed
 		 * to be large enough to hold everything
 		 */
-		s[0] = '\0';
 		for (i = 1; i < argc; i++) {
-			strcat(s, argv[i]);
+			end = stpcpy(end, argv[i]);
 			if (i + 1 < argc) {
-				end = s + strlen(s);
 				*end = ' ';
-				*(end + 1) = '\0';
+				*(++end) = '\0';
 			}
 		}
 		return s;
@@ -79,7 +76,7 @@ NORETURN static inline void
 help(const char *argv0)
 {
 	sem_unlink("/mayflower");
-	die("usage: %s [OPTION] STRING ...\n"
+	die("usage: %s [OPTION] STRING ...\n\n"
 		"displays STRING and (optionally) any following arguments concatenated together\n"
 		"in a notification window."
 		"\n\n"

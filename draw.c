@@ -1,14 +1,20 @@
 /* See LICENSE file for copyright and license details. */
 
+#define _POSIX_C_SOURCE 200809L /* for stpcpy */
 #include <sys/mman.h>
+#include <sys/types.h>
 
+#include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "config.h"
 #include "draw.h"
-#include "util/util.h"
+#include "util.h"
 
 /* globals */
 static struct draw_state draw_state;
@@ -18,6 +24,46 @@ static int button = 0;
 static uint32_t layer = ZWLR_LAYER_SHELL_V1_LAYER_TOP;
 static int keyboard_interactive = 0;
 static void *shm_data = NULL;
+
+/* tmpfile creation */
+int
+create_tmpfile(off_t size)
+{
+	static const char template[] = "/mayflower-shared-XXXXXX";
+	const char *path;
+	char *name;
+	int fd;
+	int ret;
+
+	path = getenv("XDG_RUNTIME_DIR");
+	if (!path) {
+		errno = ENOENT;
+		return -1;
+	}
+
+	name = malloc(strlen(path) + sizeof(template));
+	if (!name)
+		return -1;
+
+	strcpy(stpcpy(name, path), template);
+
+	fd = mkstemp(name);
+	if (fd >= 0)
+		unlink(name);
+	free(name);
+
+	if (fd < 0)
+		return -1;
+
+	ret = posix_fallocate(fd, 0, size);
+	if (ret != 0) {
+		close(fd);
+		errno = ret;
+		return -1;
+	}
+	
+	return fd;
+}
 
 /* listeners and handles */
 

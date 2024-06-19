@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <float.h>
 #include <limits.h>
+#include <math.h>
 #include <semaphore.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -160,11 +161,12 @@ main(int argc, char *argv[])
 	init_draw(s);
 
 	if (duration != 0) {
+		UNUSED double i;
 		struct itimerval it;
 		it.it_interval.tv_sec = 0;
 		it.it_interval.tv_usec = 0;
 		it.it_value.tv_sec = (time_t)duration;
-		it.it_value.tv_usec = (suseconds_t)(duration * 1000000) % 1000000;
+		it.it_value.tv_usec = (suseconds_t)(modf(duration, &i) * 1000000);
 		setitimer(ITIMER_REAL, &it, NULL);
 	}
 

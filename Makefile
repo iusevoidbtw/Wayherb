@@ -3,7 +3,8 @@ OUTPUT  = mayflower
 SOURCES = draw.c mayflower.c util/die.c util/strtoflt.c wayland/wlr-layer-shell-unstable-v1.c wayland/xdg-shell-protocol.c
 HEADERS = config.h draw.h util.h wayland/wlr-layer-shell-unstable-v1.h wayland/xdg-shell-client-protocol.h
 
-CFLAGS  = -g -Os -std=c99 -pedantic -Wall -Wextra -Winline -Wno-unused-variable -lcairo -lwayland-client -lwayland-cursor -lpthread
+LIBS    = -lm -lpthread -lcairo -lwayland-client -lwayland-cursor
+CFLAGS  = -g -Os -std=c99 -pedantic -Wall -Wextra -Winline -Wno-unused-variable $(LIBS)
 
 PREFIX ?= /usr/local
 
